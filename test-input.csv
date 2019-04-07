@@ -1,0 +1,3 @@
+﻿Datum;Valuta;Buchungstext;Belastung;Gutschrift;Saldo CHF;Kontonummer;Kontoinhaber;
+01.02.2019;01.02.2019;Gutschrift FooFinance Jane Doe Musterstrasse 1 4002 BASEL CH - - Info - - Pocket Money;;0.01;12445.67;; John Doe;
+02.01.2019;01.01.2019;" Belastung Geldbezug Bancomat FOO BANK BASEL 01.01.19 / 13:37:42 Karten-Nr.: 12345678 Betrag: CHF 100.00 ";100.00;;12345.67;; John Doe;
