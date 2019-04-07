@@ -64,11 +64,18 @@ def convert_csv(in_filename, out_filename):
                 dialect=HomebankDialect,
                 fieldnames=homebank_fieldnames)
             for row in reader:
+                date = convert_to_homebank_date(row["valuta"], "%d.%m.%Y")
+                paymode = 8  # = Electronic Payment
+                memo = row["buchungstext"].strip()
+                if row["gutschrift"]:
+                    amount = row["gutschrift"]
+                else:
+                    amount = "-" + row["belastung"]
                 writer.writerow({
-                    "date": convert_to_homebank_date(row["valuta"], "%d.%m.%Y"),
-                    "paymode": 8,  # = Electronic Payment
-                    "memo": row["buchungstext"].strip(),
-                    "amount": row["gutschrift"] if row["gutschrift"] else "-" + row["belastung"]
+                    "date": date,
+                    "paymode": paymode,
+                    "memo": memo,
+                    "amount": amount
                 })
 
 
@@ -84,7 +91,8 @@ def convert_to_homebank_date(date_string, input_format):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a Baloise Bank SoBa CSV export file to the Homebank CSV format.")
+        description="Convert a Baloise Bank SoBa CSV export file to the"
+                    "Homebank CSV format.")
     parser.add_argument("filename", help="The CSV file to convert.")
     args = parser.parse_args()
 
