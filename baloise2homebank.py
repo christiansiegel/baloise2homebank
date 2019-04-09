@@ -3,11 +3,22 @@
 import argparse
 import csv
 import os
+import re
+import sys
 from datetime import datetime
 
 
 class BaloiseDialect(csv.Dialect):
     delimiter = ";"
+    quotechar = "\""
+    doublequote = False
+    skipinitialspace = False
+    lineterminator = "\r\n"
+    quoting = csv.QUOTE_MINIMAL
+
+
+class CornercardDialect(csv.Dialect):
+    delimiter = ","
     quotechar = "\""
     doublequote = False
     skipinitialspace = False
@@ -36,6 +47,16 @@ baloise_fieldnames = [
 ]
 
 
+cornercard_fieldnames = [
+    "datum",
+    "beschreibung",
+    "belastung",
+    "gutschrift",
+    "kartennummer"
+    "karteninhaber"
+]
+
+
 homebank_fieldnames = [
     "date",
     "paymode",
@@ -48,7 +69,7 @@ homebank_fieldnames = [
 ]
 
 
-def convert_csv(in_filename, out_filename):
+def convert_baloise_csv(in_filename, out_filename):
     with open(in_filename, "r") as in_file:
         lines = in_file.readlines()
         transaction_lines = lines[1:]
@@ -79,6 +100,39 @@ def convert_csv(in_filename, out_filename):
                 })
 
 
+def convert_cornercard_csv(in_filename, out_filename):
+    with open(in_filename, "r") as in_file:
+        lines = in_file.readlines()
+        transaction_lines = [
+            l for l in lines if re.match(r"^\d{2}/\d{2}/\d{4}", l)
+        ]
+
+        reader = csv.DictReader(
+            transaction_lines,
+            dialect=CornercardDialect,
+            fieldnames=cornercard_fieldnames)
+
+        with open(out_filename, "w") as out_file:
+            writer = csv.DictWriter(
+                out_file,
+                dialect=HomebankDialect,
+                fieldnames=homebank_fieldnames)
+            for row in reader:
+                date = convert_to_homebank_date(row["datum"], "%d/%m/%Y")
+                paymode = 1  # = Credit Card
+                memo = row["beschreibung"].strip()
+                if row["gutschrift"]:
+                    amount = row["gutschrift"].replace(",", "")
+                else:
+                    amount = "-" + row["belastung"].replace(",", "")
+                writer.writerow({
+                    "date": date,
+                    "paymode": paymode,
+                    "memo": memo,
+                    "amount": amount
+                })
+
+
 def append_to_filename(filename, text):
     root, ext = os.path.splitext(filename)
     return root + text + ext
@@ -91,16 +145,34 @@ def convert_to_homebank_date(date_string, input_format):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a Baloise Bank SoBa CSV export file to the"
-                    "Homebank CSV format.")
+        description="Convert a Baloise Bank SoBa or Cornercard CSV "
+                    "export file to the Homebank CSV format.")
     parser.add_argument("filename", help="The CSV file to convert.")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-b", "--baloise", action="store_true",
+        help="convert a Baloise Bank SoBa cash account CSV file")
+    group.add_argument(
+        "-c", "--cornercard", action="store_true",
+        help="convert a Cornercard credit card account CSV file")
+
     args = parser.parse_args()
 
     in_filename = args.filename
     out_filename = append_to_filename(in_filename, "-homebank")
-    convert_csv(in_filename, out_filename)
 
-    print("Baloise Bank SoBa file converted. Output file: '%s'" % out_filename)
+    if args.baloise:
+        convert_baloise_csv(in_filename, out_filename)
+        print("Baloise Bank SoBa file converted. "
+              "Output file: '%s'" % out_filename)
+    elif args.cornercard:
+        convert_cornercard_csv(in_filename, out_filename)
+        print("Cornercard file converted. "
+              "Output file: '%s'" % out_filename)
+    else:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
