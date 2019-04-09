@@ -9,13 +9,19 @@ Convert CSV account reports exported from [Baloise Bank SoBa](http://www.baloise
 
 # Usage
 
-# Baloise Bank SoBa cash account
+## Automatically detect input format
+
+```bash
+# python baloise2homebank.py my-exported-file.csv
+```
+
+## Force Baloise Bank SoBa cash account
 
 ```bash
 # python baloise2homebank.py --baloise my-exported-file.csv
 ```
 
-# Cornèrcard credit card account
+## Force Cornèrcard credit card account
 
 ```bash
 # python baloise2homebank.py --cornercard my-exported-file.csv

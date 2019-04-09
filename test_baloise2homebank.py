@@ -49,6 +49,20 @@ class Baloise2HomebankTest(unittest.TestCase):
                 lines[2].rstrip("\r\n"),
                 "09-02-2018;1;;;SOME SHOP,BASEL;-9999.00;;")
 
+    def test_detect_input_format(self):
+        self.assertEqual(
+            baloise2homebank.detect_input_format(
+                "README.md"),
+            baloise2homebank.InputFormat.UNKNOWN)
+        self.assertEqual(
+            baloise2homebank.detect_input_format(
+                "testdata/test-input-baloise.csv"),
+            baloise2homebank.InputFormat.BALOISE)
+        self.assertEqual(
+            baloise2homebank.detect_input_format(
+                "testdata/test-input-cornercard.csv"),
+            baloise2homebank.InputFormat.CORNERCARD)
+
     def delete_if_exits(self, filename):
         if os.path.isfile(filename):
             os.remove(filename)
