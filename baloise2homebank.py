@@ -54,14 +54,13 @@ baloise_fieldnames = [
 
 
 cornercard_fieldnames = [
-    "datum",
-    "beschreibung",
-    "belastung",
-    "gutschrift",
-    "kartennummer"
-    "karteninhaber"
+    "Date",
+    "Description",
+    "Card",
+    "Currency",
+    "Amount",
+    "Status"
 ]
-
 
 homebank_fieldnames = [
     "date",
@@ -124,13 +123,14 @@ def convert_cornercard_csv(in_filename, out_filename):
                 dialect=HomebankDialect,
                 fieldnames=homebank_fieldnames)
             for row in reader:
-                date = convert_to_homebank_date(row["datum"], "%d/%m/%Y")
+                date = convert_to_homebank_date(row["Date"], "%d/%m/%Y")
                 paymode = 1  # = Credit Card
-                memo = row["beschreibung"].strip()
-                if row["gutschrift"]:
-                    amount = row["gutschrift"].replace(",", "")
+                memo = row["Description"].strip()
+                amount = row["Amount"]
+                if amount.startswith("-"):
+                    amount = amount[1:]
                 else:
-                    amount = "-" + row["belastung"].replace(",", "")
+                    amount = "-" + amount
                 writer.writerow({
                     "date": date,
                     "paymode": paymode,
@@ -144,7 +144,7 @@ def detect_input_format(in_filename):
         first_line = in_file.readline()
         if "Datum;Valuta;Buchungstext;Belastung;Gutschrift" in first_line:
             return InputFormat.BALOISE
-        if "Datum,Beschreibung,Belastung CHF,Gutschrift" in first_line:
+        if "Date,Description,Card,Currency,Amount,Status" in first_line:
             return InputFormat.CORNERCARD
     return InputFormat.UNKNOWN
 

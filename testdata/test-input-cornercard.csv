@@ -1,6 +1,4 @@
-Datum,Beschreibung,Belastung CHF,Gutschrift CHF,Kartennummer,Name Karteninhaber
-,Saldovortrag:,47.11,,,
-25/01/2018,IHRE ZAHLUNG,,47.11,,
-24/01/2018,"SBB CFF FFS Mobile Tic,Bern",42.00,,xxxx-xxxx-xxxx-1234,JOHN DOE
-09/02/2018,"SOME SHOP,BASEL","9,999.00",,xxxx-xxxx-xxxx-1234,JOHN DOE
-,Saldo welchen wir am 27.02.2018 bei Ihrer Bank einfordern ,"10,041.00",,,
+Date,Description,Card,Currency,Amount,Status
+25/01/2018,IHRE ZAHLUNG,,CHF,-47.11,Settled transaction
+24/01/2018,"SBB CFF FFS Mobile Tic,Bern",**1234,CHF,42.00,Settled transaction
+09/02/2018,"SOME SHOP,BASEL",**1234,CHF,9999.00,Settled transaction
